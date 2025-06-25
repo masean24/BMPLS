@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isImageProcessing = false;
 
     // === TEMPLATE CONFIGURATION ===
-    const templateBase64 = createSampleTemplate();
+    // ✅ Fixed: Gunakan nama variabel yang konsisten
+    const templateUrl = 'https://raw.githubusercontent.com/masean24/tes-aja/main/template.png';
 
     // === UTILITY FUNCTIONS ===
     
@@ -417,16 +418,29 @@ document.addEventListener('DOMContentLoaded', () => {
         isTemplateLoaded = true;
         redrawCanvas();
         showAlert('success', '🎨 Generator siap digunakan! Upload foto untuk memulai.');
-        console.log('✅ Template berhasil dimuat');
+        console.log('✅ Template berhasil dimuat dari:', templateUrl);
     };
 
     templateImage.onerror = () => {
-        showAlert('error', 'Template gagal dimuat. Silakan refresh halaman.');
-        console.error('❌ Template gagal dimuat');
+        // ✅ Fallback: Jika template dari GitHub gagal, gunakan template sample
+        console.warn('⚠️ Template dari GitHub gagal dimuat, menggunakan template sample...');
+        showAlert('warning', 'Template utama tidak tersedia, menggunakan template alternatif.');
+        
+        // Buat template sample sebagai fallback
+        const sampleTemplate = new Image();
+        sampleTemplate.onload = () => {
+            templateImage = sampleTemplate;
+            isTemplateLoaded = true;
+            redrawCanvas();
+            console.log('✅ Template sample berhasil dimuat');
+        };
+        sampleTemplate.src = createSampleTemplate();
     };
 
-    // Load template
-    templateImage.src = templateBase64;
+    // ✅ Load template dengan error handling yang lebih baik
+    console.log('🔄 Memuat template dari:', templateUrl);
+    templateImage.crossOrigin = 'anonymous'; // Untuk mengatasi CORS
+    templateImage.src = templateUrl;
 
     /**
      * File Upload Handler
