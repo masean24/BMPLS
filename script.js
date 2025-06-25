@@ -1,4 +1,8 @@
+// Menunggu seluruh halaman HTML dimuat sebelum menjalankan script
 document.addEventListener('DOMContentLoaded', () => {
+
+    console.log("DOM siap, script mulai dijalankan.");
+
     // --- Ambil Elemen dari DOM ---
     const canvas = document.getElementById('twibbonCanvas');
     const ctx = canvas.getContext('2d');
@@ -6,45 +10,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const zoomSlider = document.getElementById('zoomSlider');
     const downloadBtn = document.getElementById('downloadBtn');
     const resetBtn = document.getElementById('resetBtn');
-    const placeholderText = document.getElementById('placeholder-text');
+    const placeholderText = document.getElementById('placeholderText');
+    const loadingIndicator = document.getElementById('loadingIndicator');
 
     // --- Variabel State ---
     let userImage = null;
     let templateImage = new Image();
-    templateImage.src = 'template.png'; // Pastikan nama file sesuai
-
     let scale = 1.0;
     let position = { x: 0, y: 0 };
     let isDragging = false;
     let startDrag = { x: 0, y: 0 };
+    
+    // --- Optimasi untuk Layar Hi-DPI / Retina ---
+    // Kode ini membuat canvas tetap tajam di layar modern
+    const dpi = window.devicePixelRatio || 1;
+    const style_width = +getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
+    const style_height = +getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
+    canvas.setAttribute('width', style_width * dpi);
+    canvas.setAttribute('height', style_height * dpi);
+    ctx.scale(dpi, dpi);
+    console.log("Canvas dioptimasi untuk layar Hi-DPI dengan rasio:", dpi);
 
     // --- Fungsi Utama ---
 
-    // Fungsi untuk menggambar ulang semua elemen di canvas
     function redrawCanvas() {
-        // 1. Bersihkan canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // 2. Gambar foto pengguna (jika ada)
+        ctx.clearRect(0, 0, canvas.width / dpi, canvas.height / dpi);
         if (userImage) {
-            // Sembunyikan teks placeholder jika ada gambar
             placeholderText.style.display = 'none';
-
-            // Hitung dimensi gambar setelah di-zoom
             const scaledWidth = userImage.width * scale;
             const scaledHeight = userImage.height * scale;
-
-            // Gambar foto pengguna dengan posisi dan skala yang sudah diatur
             ctx.drawImage(userImage, position.x, position.y, scaledWidth, scaledHeight);
         } else {
-             placeholderText.style.display = 'block';
+            placeholderText.style.display = 'block';
         }
-
-        // 3. Gambar template Twibbon di atasnya
-        ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(templateImage, 0, 0, canvas.width / dpi, canvas.height / dpi);
     }
 
-    // Fungsi untuk mengaktifkan/menonaktifkan tombol
     function setControlsState(enabled) {
         zoomSlider.disabled = !enabled;
         downloadBtn.disabled = !enabled;
@@ -53,145 +54,142 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listener ---
 
-    // Ketika template Twibbon selesai dimuat
     templateImage.onload = () => {
-        redrawCanvas(); // Langsung gambar template-nya
+        console.log("Gambar template berhasil dimuat.");
+        redrawCanvas();
     };
+    templateImage.onerror = () => {
+        console.error("GAGAL memuat gambar template! Pastikan file 'template.png' ada dan tidak rusak.");
+        alert("Gagal memuat file template.png!");
+    };
+    templateImage.src = './template.png';
 
-    // Ketika pengguna memilih file foto
     imageLoader.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+
+        if (!file) {
+            console.log("Pemilihan file dibatalkan oleh pengguna.");
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            alert("File yang Anda pilih bukan gambar. Silakan pilih file .jpg atau .png.");
+            console.warn("Tipe file tidak valid:", file.type);
+            return;
+        }
 
         const reader = new FileReader();
+        console.log("1. FileReader mulai membaca file...");
+
         reader.onload = (event) => {
+            console.log("2. FileReader selesai. Membuat object Image dari data...");
             userImage = new Image();
+            
             userImage.onload = () => {
-                // Reset posisi dan skala ke default saat gambar baru dimuat
-                scale = Math.max(canvas.width / userImage.width, canvas.height / userImage.height);
+                console.log("3. Object Image BERHASIL dimuat. Mengatur posisi & skala awal.");
+                loadingIndicator.style.display = 'none';
+
+                // Skala awal agar gambar pas dengan canvas
+                scale = Math.max((canvas.width / dpi) / userImage.width, (canvas.height / dpi) / userImage.height);
                 zoomSlider.value = scale;
                 position = {
-                    x: (canvas.width - userImage.width * scale) / 2,
-                    y: (canvas.height - userImage.height * scale) / 2,
+                    x: ((canvas.width / dpi) - userImage.width * scale) / 2,
+                    y: ((canvas.height / dpi) - userImage.height * scale) / 2,
                 };
                 
+                console.log("4. Mengaktifkan tombol kontrol.");
                 setControlsState(true);
                 redrawCanvas();
+                console.log("5. Proses selesai. Gambar pengguna ditampilkan.");
             };
+
+            userImage.onerror = () => {
+                console.error("GAGAL memuat data gambar. File mungkin rusak atau format tidak didukung.");
+                alert("Gagal memuat file gambar yang Anda pilih. Coba gunakan file lain.");
+                loadingIndicator.style.display = 'none';
+            };
+            
             userImage.src = event.target.result;
         };
+        
+        reader.onerror = () => {
+             console.error("GAGAL membaca file dengan FileReader.");
+             alert("Terjadi kesalahan saat membaca file. Coba lagi.");
+             loadingIndicator.style.display = 'none';
+        };
+
+        loadingIndicator.style.display = 'block';
         reader.readAsDataURL(file);
     });
 
-    // Ketika slider zoom diubah
+    // --- Sisa Event Listener (Zoom, Drag, Tombol) ---
+    // Kode ini umumnya sudah benar dan tidak perlu diubah.
+
     zoomSlider.addEventListener('input', (e) => {
         if (!userImage) return;
-
         const oldScale = scale;
         scale = parseFloat(e.target.value);
-
-        // Logika agar zoom terasa berpusat pada gambar
-        const oldWidth = userImage.width * oldScale;
-        const newWidth = userImage.width * scale;
-        position.x -= (newWidth - oldWidth) / 2;
-
-        const oldHeight = userImage.height * oldScale;
-        const newHeight = userImage.height * scale;
-        position.y -= (newHeight - oldHeight) / 2;
-
+        position.x -= (userImage.width * scale - userImage.width * oldScale) / 2;
+        position.y -= (userImage.height * scale - userImage.height * oldScale) / 2;
         redrawCanvas();
     });
 
-    // --- Logika Drag & Drop (Geser Posisi) ---
     function getEventPosition(event) {
         const rect = canvas.getBoundingClientRect();
-        if (event.touches) { // Untuk layar sentuh (mobile)
-            return {
-                x: event.touches[0].clientX - rect.left,
-                y: event.touches[0].clientY - rect.top
-            };
-        }
-        // Untuk mouse (desktop)
+        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
         return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
+            x: (clientX - rect.left) / (rect.width / (canvas.width / dpi)),
+            y: (clientY - rect.top) / (rect.height / (canvas.height / dpi))
         };
     }
 
-    canvas.addEventListener('mousedown', (e) => {
+    function startDragging(e) {
         if (!userImage) return;
         isDragging = true;
         canvas.style.cursor = 'grabbing';
         const pos = getEventPosition(e);
-        startDrag = {
-            x: pos.x - position.x,
-            y: pos.y - position.y
-        };
-    });
+        startDrag = { x: pos.x - position.x, y: pos.y - position.y };
+        if (e.touches) e.preventDefault();
+    }
 
-    canvas.addEventListener('touchstart', (e) => {
-        if (!userImage) return;
-        isDragging = true;
+    function doDrag(e) {
+        if (!isDragging || !userImage) return;
         const pos = getEventPosition(e);
-        startDrag = {
-            x: pos.x - position.x,
-            y: pos.y - position.y
-        };
-        e.preventDefault(); // Mencegah scrolling halaman saat drag di canvas
-    });
+        position = { x: pos.x - startDrag.x, y: pos.y - startDrag.y };
+        redrawCanvas();
+        if (e.touches) e.preventDefault();
+    }
 
-    canvas.addEventListener('mousemove', (e) => {
-        if (isDragging && userImage) {
-            const pos = getEventPosition(e);
-            position = {
-                x: pos.x - startDrag.x,
-                y: pos.y - startDrag.y
-            };
-            redrawCanvas();
-        }
-    });
-
-    canvas.addEventListener('touchmove', (e) => {
-        if (isDragging && userImage) {
-            const pos = getEventPosition(e);
-            position = {
-                x: pos.x - startDrag.x,
-                y: pos.y - startDrag.y
-            };
-            redrawCanvas();
-            e.preventDefault();
-        }
-    });
-
-    // Hentikan proses dragging
     function stopDragging() {
         isDragging = false;
         canvas.style.cursor = 'grab';
     }
+
+    canvas.addEventListener('mousedown', startDragging);
+    canvas.addEventListener('touchstart', startDragging);
+    canvas.addEventListener('mousemove', doDrag);
+    canvas.addEventListener('touchmove', doDrag);
     canvas.addEventListener('mouseup', stopDragging);
     canvas.addEventListener('touchend', stopDragging);
     canvas.addEventListener('mouseleave', stopDragging);
 
-    // --- Logika Tombol Aksi ---
-
-    // Tombol Reset
     resetBtn.addEventListener('click', () => {
         userImage = null;
-        imageLoader.value = ''; // Mengosongkan input file
+        imageLoader.value = '';
         scale = 1.0;
-        position = { x: 0, y: 0 };
         zoomSlider.value = 1.0;
         setControlsState(false);
         redrawCanvas();
+        console.log("Resetting aplication state.");
     });
 
-    // Tombol Download
     downloadBtn.addEventListener('click', () => {
-        // Membuat link sementara untuk di-klik
         const link = document.createElement('a');
-        link.download = 'twibbon-hasil.png'; // Nama file hasil download
-        link.href = canvas.toDataURL('image/png'); // Mengubah isi canvas menjadi data URL
+        link.download = 'twibbon-hasil.png';
+        link.href = canvas.toDataURL('image/png');
         link.click();
+        console.log("Downloading image...");
     });
 
     // Inisialisasi awal
