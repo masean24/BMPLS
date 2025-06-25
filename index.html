@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generator Twibbon Interaktif</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -18,7 +18,8 @@
         <main>
             <div class="canvas-wrapper">
                 <canvas id="twibbonCanvas" width="1080" height="1080"></canvas>
-                <div id="placeholder-text">Area Kreasimu</div>
+                <div id="placeholderText" class="canvas-overlay">Area Kreasimu</div>
+                <div id="loadingIndicator" class="canvas-overlay" style="display: none;">Memuat Gambar...</div>
             </div>
 
             <div class="controls">
@@ -27,7 +28,7 @@
                     <img src="https://icongr.am/feather/upload.svg?size=24&color=ffffff" alt="upload icon">
                     Pilih Foto
                 </label>
-                <input type="file" id="imageLoader" name="imageLoader" accept="image/*"/>
+                <input type="file" id="imageLoader" name="imageLoader" accept="image/png, image/jpeg, image/webp"/>
 
                 <p class="instruction">Langkah 2: Atur Posisi & Ukuran</p>
                 <div class="zoom-control">
@@ -58,6 +59,6 @@
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script src="./script.js"></script>
 </body>
 </html>
