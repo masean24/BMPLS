@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Ambil Elemen dari DOM ---
+    // === DOM ELEMENTS ===
     const canvas = document.getElementById('twibbonCanvas');
     const ctx = canvas.getContext('2d');
     const imageLoader = document.getElementById('imageLoader');
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('errorMessage');
     const warningMessage = document.getElementById('warningMessage');
 
-    // --- Variabel State ---
+    // === STATE VARIABLES ===
     let userImage = null;
     let templateImage = new Image();
     let scale = 1.0;
@@ -28,12 +28,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDragging = false;
     let startDrag = { x: 0, y: 0 };
     let isTemplateLoaded = false;
+    let isImageProcessing = false;
 
-    // --- Template Image (menggunakan base64 contoh) ---
-    // Untuk demo, saya buat template sederhana. Ganti dengan template asli Anda
+    // === TEMPLATE CONFIGURATION ===
     const templateBase64 = createSampleTemplate();
 
-    // --- Utility Functions ---
+    // === UTILITY FUNCTIONS ===
+    
+    /**
+     * Menampilkan alert dengan tipe dan pesan tertentu
+     */
     function showAlert(type, message) {
         hideAllAlerts();
         const alert = type === 'success' ? successAlert : 
@@ -44,25 +48,40 @@ document.addEventListener('DOMContentLoaded', () => {
         messageEl.textContent = message;
         alert.style.display = 'flex';
         
+        // Auto hide after 5 seconds
         setTimeout(() => {
             alert.style.display = 'none';
         }, 5000);
     }
 
+    /**
+     * Menyembunyikan semua alert
+     */
     function hideAllAlerts() {
         successAlert.style.display = 'none';
         errorAlert.style.display = 'none';
         warningAlert.style.display = 'none';
     }
 
+    /**
+     * Menampilkan loading overlay
+     */
     function showLoading() {
         loadingOverlay.style.display = 'flex';
+        isImageProcessing = true;
     }
 
+    /**
+     * Menyembunyikan loading overlay
+     */
     function hideLoading() {
         loadingOverlay.style.display = 'none';
+        isImageProcessing = false;
     }
 
+    /**
+     * Format ukuran file ke string yang readable
+     */
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -71,98 +90,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
+    /**
+     * Update display zoom percentage
+     */
     function updateZoomValue() {
         const percentage = Math.round(scale * 100);
         zoomValue.textContent = percentage + '%';
     }
 
-    // --- Template Creation (Sample) ---
-    function createSampleTemplate() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1080;
-        canvas.height = 1080;
-        const ctx = canvas.getContext('2d');
-
-        // Background gradient
-        const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
-        gradient.addColorStop(0, 'rgba(0, 123, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(0, 123, 255, 0.05)');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 1080, 1080);
-
-        // Frame border
-        ctx.strokeStyle = '#007bff';
-        ctx.lineWidth = 20;
-        ctx.strokeRect(50, 50, 980, 980);
-
-        // Corner decorations
-        ctx.fillStyle = '#007bff';
-        ctx.fillRect(0, 0, 150, 150);
-        ctx.fillRect(930, 0, 150, 150);
-        ctx.fillRect(0, 930, 150, 150);
-        ctx.fillRect(930, 930, 150, 150);
-
-        // Sample text overlay
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.fillRect(200, 900, 680, 120);
-        
-        ctx.fillStyle = '#007bff';
-        ctx.font = 'bold 48px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('TWIBBON GENERATOR', 540, 950);
-        ctx.font = '32px Arial';
-        ctx.fillText('Created with ❤️', 540, 990);
-
-        return canvas.toDataURL();
-    }
-
-    // --- Fungsi Utama ---
-    function redrawCanvas() {
-        if (!ctx) {
-            showAlert('error', 'Canvas tidak didukung oleh browser Anda');
-            return;
-        }
-
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw user image first (background)
-        if (userImage) {
-            placeholderText.style.display = 'none';
-            canvas.classList.add('has-image');
-
-            const scaledWidth = userImage.width * scale;
-            const scaledHeight = userImage.height * scale;
-
-            // Enable image smoothing for better quality
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-
-            ctx.drawImage(userImage, position.x, position.y, scaledWidth, scaledHeight);
-        } else {
-            placeholderText.style.display = 'block';
-            canvas.classList.remove('has-image');
-        }
-
-        // Draw template overlay (foreground)
-        if (isTemplateLoaded) {
-            ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
-        }
-    }
-
-    function setControlsState(enabled) {
-        zoomSlider.disabled = !enabled;
-        downloadBtn.disabled = !enabled;
-        resetBtn.disabled = !enabled;
-        
-        if (enabled) {
-            dragHint.style.display = 'block';
-            showAlert('success', 'Foto berhasil dimuat! Sekarang atur posisi dan ukurannya.');
-        } else {
-            dragHint.style.display = 'none';
-        }
-    }
-
+    /**
+     * Validasi file yang diupload
+     */
     function validateFile(file) {
         const maxSize = 10 * 1024 * 1024; // 10MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -178,24 +116,228 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // --- Event Listeners ---
+    /**
+     * Membuat template sample (ganti dengan template asli)
+     */
+    function createSampleTemplate() {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 1080;
+        tempCanvas.height = 1080;
+        const tempCtx = tempCanvas.getContext('2d');
 
-    // Template loading
+        // Background gradient
+        const gradient = tempCtx.createLinearGradient(0, 0, 1080, 1080);
+        gradient.addColorStop(0, 'rgba(0, 123, 255, 0.1)');
+        gradient.addColorStop(1, 'rgba(0, 123, 255, 0.05)');
+        tempCtx.fillStyle = gradient;
+        tempCtx.fillRect(0, 0, 1080, 1080);
+
+        // Frame border
+        tempCtx.strokeStyle = '#007bff';
+        tempCtx.lineWidth = 20;
+        tempCtx.strokeRect(50, 50, 980, 980);
+
+        // Corner decorations
+        tempCtx.fillStyle = '#007bff';
+        tempCtx.fillRect(0, 0, 150, 150);
+        tempCtx.fillRect(930, 0, 150, 150);
+        tempCtx.fillRect(0, 930, 150, 150);
+        tempCtx.fillRect(930, 930, 150, 150);
+
+        // Sample text overlay
+        tempCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        tempCtx.fillRect(200, 900, 680, 120);
+        
+        tempCtx.fillStyle = '#007bff';
+        tempCtx.font = 'bold 48px Arial';
+        tempCtx.textAlign = 'center';
+        tempCtx.fillText('TWIBBON GENERATOR', 540, 950);
+        tempCtx.font = '32px Arial';
+        tempCtx.fillText('Created with ❤️', 540, 990);
+
+        return tempCanvas.toDataURL();
+    }
+
+    // === CORE FUNCTIONS ===
+
+    /**
+     * Menggambar ulang canvas dengan user image dan template
+     */
+    function redrawCanvas() {
+        if (!ctx) {
+            showAlert('error', 'Canvas tidak didukung oleh browser Anda');
+            return;
+        }
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw user image first (background layer)
+        if (userImage) {
+            placeholderText.style.display = 'none';
+            canvas.classList.add('has-image');
+
+            const scaledWidth = userImage.width * scale;
+            const scaledHeight = userImage.height * scale;
+
+            // Enable high-quality image smoothing
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            ctx.drawImage(userImage, position.x, position.y, scaledWidth, scaledHeight);
+        } else {
+            placeholderText.style.display = 'block';
+            canvas.classList.remove('has-image');
+        }
+
+        // Draw template overlay (foreground layer)
+        if (isTemplateLoaded) {
+            ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    /**
+     * Mengatur status kontrol (enabled/disabled)
+     */
+    function setControlsState(enabled) {
+        zoomSlider.disabled = !enabled;
+        downloadBtn.disabled = !enabled;
+        resetBtn.disabled = !enabled;
+        
+        if (enabled) {
+            dragHint.style.display = 'block';
+            showAlert('success', 'Foto berhasil dimuat! Sekarang atur posisi dan ukurannya.');
+        } else {
+            dragHint.style.display = 'none';
+        }
+    }
+
+    /**
+     * Mendapatkan posisi event (mouse/touch) relatif terhadap canvas
+     */
+    function getEventPosition(event) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        if (event.touches) {
+            return {
+                x: (event.touches[0].clientX - rect.left) * scaleX,
+                y: (event.touches[0].clientY - rect.top) * scaleY
+            };
+        }
+        return {
+            x: (event.clientX - rect.left) * scaleX,
+            y: (event.clientY - rect.top) * scaleY
+        };
+    }
+
+    /**
+     * Reset posisi gambar ke tengah
+     */
+    function resetImagePosition() {
+        if (!userImage) return;
+
+        const scaledWidth = userImage.width * scale;
+        const scaledHeight = userImage.height * scale;
+        position = {
+            x: (canvas.width - scaledWidth) / 2,
+            y: (canvas.height - scaledHeight) / 2,
+        };
+        redrawCanvas();
+    }
+
+    /**
+     * Download hasil sebagai PNG
+     */
+    function downloadResult() {
+        if (!userImage) {
+            showAlert('warning', 'Silakan upload foto terlebih dahulu!');
+            return;
+        }
+
+        try {
+            showLoading();
+            
+            // Create final canvas with high quality
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = 1080;
+            finalCanvas.height = 1080;
+            const finalCtx = finalCanvas.getContext('2d');
+            
+            // Enable high-quality rendering
+            finalCtx.imageSmoothingEnabled = true;
+            finalCtx.imageSmoothingQuality = 'high';
+
+            // Draw user image
+            const scaledWidth = userImage.width * scale;
+            const scaledHeight = userImage.height * scale;
+            finalCtx.drawImage(userImage, position.x, position.y, scaledWidth, scaledHeight);
+
+            // Draw template overlay
+            if (isTemplateLoaded) {
+                finalCtx.drawImage(templateImage, 0, 0, 1080, 1080);
+            }
+
+            // Download
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            link.download = `twibbon-${timestamp}.png`;
+            link.href = finalCanvas.toDataURL('image/png', 1.0);
+            link.click();
+
+            hideLoading();
+            showAlert('success', '🎉 Twibbon berhasil didownload!');
+        } catch (error) {
+            hideLoading();
+            showAlert('error', 'Gagal mendownload. Silakan coba lagi.');
+            console.error('Download error:', error);
+        }
+    }
+
+    /**
+     * Reset semua state
+     */
+    function resetAll() {
+        if (!userImage) return;
+
+        if (confirm('🔄 Yakin ingin mereset? Foto dan pengaturan akan dihapus.')) {
+            userImage = null;
+            scale = 1.0;
+            position = { x: 0, y: 0 };
+            zoomSlider.value = 1;
+            updateZoomValue();
+            setControlsState(false);
+            imageLoader.value = '';
+            fileInfo.style.display = 'none';
+            redrawCanvas();
+            showAlert('success', 'Reset berhasil! Silakan upload foto baru.');
+        }
+    }
+
+    // === EVENT LISTENERS ===
+
+    /**
+     * Template Image Loading
+     */
     templateImage.onload = () => {
         isTemplateLoaded = true;
         redrawCanvas();
-        console.log('Template berhasil dimuat');
+        showAlert('success', '🎨 Generator siap digunakan! Upload foto untuk memulai.');
+        console.log('✅ Template berhasil dimuat');
     };
 
     templateImage.onerror = () => {
         showAlert('error', 'Template gagal dimuat. Silakan refresh halaman.');
-        console.error('Template gagal dimuat');
+        console.error('❌ Template gagal dimuat');
     };
 
     // Load template
     templateImage.src = templateBase64;
 
-    // File upload
+    /**
+     * File Upload Handler
+     */
     imageLoader.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -203,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             validateFile(file);
             showLoading();
+            hideAllAlerts();
             
             // Show file info
             fileInfo.innerHTML = `
@@ -215,18 +358,13 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (event) => {
                 userImage = new Image();
                 userImage.onload = () => {
-                    // Auto-scale to fit canvas
+                    // Auto-scale to fit canvas nicely
                     const scaleX = canvas.width / userImage.width;
                     const scaleY = canvas.height / userImage.height;
                     scale = Math.max(scaleX, scaleY) * 0.8; // Slightly smaller than full fit
                     
                     // Center the image
-                    const scaledWidth = userImage.width * scale;
-                    const scaledHeight = userImage.height * scale;
-                    position = {
-                        x: (canvas.width - scaledWidth) / 2,
-                        y: (canvas.height - scaledHeight) / 2,
-                    };
+                    resetImagePosition();
 
                     zoomSlider.value = scale;
                     updateZoomValue();
@@ -256,7 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Zoom control
+    /**
+     * Zoom Control Handler
+     */
     zoomSlider.addEventListener('input', (e) => {
         if (!userImage) return;
 
@@ -264,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scale = parseFloat(e.target.value);
         updateZoomValue();
 
-        // Zoom towards center
+        // Zoom towards center point
         const oldWidth = userImage.width * oldScale;
         const newWidth = userImage.width * scale;
         position.x -= (newWidth - oldWidth) / 2;
@@ -276,27 +416,13 @@ document.addEventListener('DOMContentLoaded', () => {
         redrawCanvas();
     });
 
-    // --- Drag & Drop Logic ---
-    function getEventPosition(event) {
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
+    // === DRAG & DROP FUNCTIONALITY ===
 
-        if (event.touches) {
-            return {
-                x: (event.touches[0].clientX - rect.left) * scaleX,
-                y: (event.touches[0].clientY - rect.top) * scaleY
-            };
-        }
-        return {
-            x: (event.clientX - rect.left) * scaleX,
-            y: (event.clientY - rect.top) * scaleY
-        };
-    }
-
-    // Mouse events
+    /**
+     * Mouse Events
+     */
     canvas.addEventListener('mousedown', (e) => {
-        if (!userImage) return;
+        if (!userImage || isImageProcessing) return;
         isDragging = true;
         canvas.style.cursor = 'grabbing';
         const pos = getEventPosition(e);
@@ -304,10 +430,11 @@ document.addEventListener('DOMContentLoaded', () => {
             x: pos.x - position.x,
             y: pos.y - position.y
         };
+        e.preventDefault();
     });
 
     canvas.addEventListener('mousemove', (e) => {
-        if (isDragging && userImage) {
+        if (isDragging && userImage && !isImageProcessing) {
             const pos = getEventPosition(e);
             position = {
                 x: pos.x - startDrag.x,
@@ -318,18 +445,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     canvas.addEventListener('mouseup', () => {
-        isDragging = false;
-        canvas.style.cursor = userImage ? 'grab' : 'default';
+        if (isDragging) {
+            isDragging = false;
+            canvas.style.cursor = userImage ? 'grab' : 'default';
+        }
     });
 
     canvas.addEventListener('mouseleave', () => {
-        isDragging = false;
-        canvas.style.cursor = userImage ? 'grab' : 'default';
+        if (isDragging) {
+            isDragging = false;
+            canvas.style.cursor = userImage ? 'grab' : 'default';
+        }
     });
 
-    // Touch events
+    /**
+     * Touch Events for Mobile
+     */
     canvas.addEventListener('touchstart', (e) => {
-        if (!userImage) return;
+        if (!userImage || isImageProcessing) return;
         isDragging = true;
         const pos = getEventPosition(e);
         startDrag = {
@@ -337,150 +470,159 @@ document.addEventListener('DOMContentLoaded', () => {
             y: pos.y - position.y
         };
         e.preventDefault();
-    });
+    }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
-        if (isDragging && userImage) {
+        if (isDragging && userImage && !isImageProcessing) {
             const pos = getEventPosition(e);
             position = {
                 x: pos.x - startDrag.x,
                 y: pos.y - startDrag.y
             };
             redrawCanvas();
-            e.preventDefault();
         }
-    });
+        e.preventDefault();
+    }, { passive: false });
 
     canvas.addEventListener('touchend', () => {
         isDragging = false;
     });
 
-    // Action buttons
-    resetBtn.addEventListener('click', () => {
-        if (confirm('Yakin ingin mengulang dari awal? Semua perubahan akan hilang.')) {
-            userImage = null;
-            imageLoader.value = '';
-            fileInfo.style.display = 'none';
-            scale = 1.0;
-            position = { x: 0, y: 0 };
-            zoomSlider.value = 1.0;
-            updateZoomValue();
-            setControlsState(false);
-            redrawCanvas();
-            showAlert('success', 'Berhasil direset! Silakan upload foto baru.');
+    /**
+     * Double-click to reset position
+     */
+    canvas.addEventListener('dblclick', () => {
+        if (userImage) {
+            resetImagePosition();
+            showAlert('success', '📍 Posisi gambar direset ke tengah');
         }
     });
 
-    downloadBtn.addEventListener('click', () => {
-        try {
-            const link = document.createElement('a');
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            link.download = `twibbon-${timestamp}.png`;
-            link.href = canvas.toDataURL('image/png', 1.0);
-            link.click();
-            showAlert('success', 'Twibbon berhasil didownload! 🎉');
-        } catch (error) {
-            showAlert('error', 'Gagal mendownload gambar. Silakan coba lagi.');
-            console.error('Download error:', error);
-        }
-    });
+    // === BUTTON EVENT LISTENERS ===
 
-    // Keyboard shortcuts
+    downloadBtn.addEventListener('click', downloadResult);
+    resetBtn.addEventListener('click', resetAll);
+
+    // === KEYBOARD SHORTCUTS ===
+
     document.addEventListener('keydown', (e) => {
-        if (!userImage) return;
-        
-        const moveStep = 10;
-        let moved = false;
+        if (!userImage || isImageProcessing) return;
 
-        switch(e.key) {
-            case 'ArrowUp':
-                position.y -= moveStep;
-                moved = true;
-                break;
-            case 'ArrowDown':
-                position.y += moveStep;
-                moved = true;
-                break;
+        const moveStep = 10;
+        const zoomStep = 0.05;
+
+        switch (e.key) {
             case 'ArrowLeft':
                 position.x -= moveStep;
-                moved = true;
+                redrawCanvas();
+                e.preventDefault();
                 break;
             case 'ArrowRight':
                 position.x += moveStep;
-                moved = true;
+                redrawCanvas();
+                e.preventDefault();
+                break;
+            case 'ArrowUp':
+                position.y -= moveStep;
+                redrawCanvas();
+                e.preventDefault();
+                break;
+            case 'ArrowDown':
+                position.y += moveStep;
+                redrawCanvas();
+                e.preventDefault();
                 break;
             case '+':
             case '=':
                 if (scale < 2.5) {
-                    scale += 0.1;
+                    scale = Math.min(2.5, scale + zoomStep);
                     zoomSlider.value = scale;
                     updateZoomValue();
-                    moved = true;
+                    redrawCanvas();
                 }
+                e.preventDefault();
                 break;
             case '-':
                 if (scale > 0.3) {
-                    scale -= 0.1;
+                    scale = Math.max(0.3, scale - zoomStep);
                     zoomSlider.value = scale;
                     updateZoomValue();
-                    moved = true;
+                    redrawCanvas();
+                }
+                e.preventDefault();
+                break;
+            case 'r':
+            case 'R':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    resetImagePosition();
+                    showAlert('success', '📍 Posisi gambar direset ke tengah');
+                }
+                break;
+            case 'd':
+            case 'D':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    downloadResult();
                 }
                 break;
         }
-
-        if (moved) {
-            e.preventDefault();
-            redrawCanvas();
-        }
     });
 
-    // Double click to reset position
-    canvas.addEventListener('dblclick', () => {
-        if (!userImage) return;
-        
-        // Center the image
-        const scaledWidth = userImage.width * scale;
-        const scaledHeight = userImage.height * scale;
-        position = {
-            x: (canvas.width - scaledWidth) / 2,
-            y: (canvas.height - scaledHeight) / 2,
-        };
-        redrawCanvas();
-        showAlert('success', 'Posisi gambar dikembalikan ke tengah');
-    });
+    // === RESPONSIVE HANDLING ===
 
-    // Prevent context menu on canvas
-    canvas.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-    });
-
-    // Handle window resize
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            redrawCanvas();
-        }, 250);
+            if (userImage) {
+                redrawCanvas();
+            }
+        }, 100);
     });
 
-    // Initialize
-    setControlsState(false);
-    updateZoomValue();
-    
-    // Show welcome message
+    // === DRAG AND DROP FILE UPLOAD ===
+
+    canvas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        canvas.style.borderColor = '#007bff';
+        canvas.style.backgroundColor = 'rgba(0, 123, 255, 0.05)';
+    });
+
+    canvas.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        canvas.style.borderColor = '';
+        canvas.style.backgroundColor = '';
+    });
+
+    canvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        canvas.style.borderColor = '';
+        canvas.style.backgroundColor = '';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            // Simulate file input change
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            imageLoader.files = dt.files;
+            imageLoader.dispatchEvent(new Event('change'));
+        }
+    });
+
+    // === INITIAL WELCOME MESSAGE ===
     setTimeout(() => {
-        showAlert('success', 'Selamat datang! Upload foto untuk mulai membuat twibbon.');
+        if (!userImage) {
+            showAlert('success', '👋 Selamat datang! Upload foto untuk membuat twibbon keren.');
+        }
     }, 1000);
 
-    // Add some helpful tooltips
-    const addTooltip = (element, text) => {
-        element.title = text;
-    };
-
-    addTooltip(zoomSlider, 'Gunakan slider ini atau tombol +/- untuk zoom');
-    addTooltip(canvas, 'Klik dan seret untuk menggeser foto, atau gunakan tombol panah. Double-click untuk reset posisi ke tengah');
-    addTooltip(downloadBtn, 'Download hasil twibbon dalam format PNG berkualitas tinggi');
-    addTooltip(resetBtn, 'Hapus foto dan mulai dari awal');
-
     console.log('🎨 Twibbon Generator berhasil dimuat!');
+    console.log('⌨️ Keyboard shortcuts:');
+    console.log('   • Arrow keys: Geser gambar');
+    console.log('   • +/- : Zoom in/out');
+    console.log('   • Ctrl+R: Reset posisi');
+    console.log('   • Ctrl+D: Download');
+    console.log('   • Double-click: Reset posisi ke tengah');
 });
