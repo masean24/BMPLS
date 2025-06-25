@@ -25,7 +25,7 @@ body {
     border-radius: 12px;
     box-shadow: var(--shadow);
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px; /* Sedikit lebih lebar untuk canvas */
     text-align: center;
 }
 
@@ -48,20 +48,18 @@ main {
 
 .canvas-wrapper {
     position: relative;
-    /* Kita atur ukuran wadahnya agar tidak terlalu besar di layar */
-    width: 500px;  /* Anda bisa ganti misal ke 600px jika mau lebih besar */
-    max-width: 100%; /* Agar responsif di layar kecil */
-    aspect-ratio: 1 / 1; /* Menjaga bentuk kotak */
+    width: 500px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
     flex-shrink: 0;
+    background-color: #fafafa;
+    border-radius: 8px;
 }
 
 #twibbonCanvas {
-    /* Atur agar canvas mengisi penuh wadahnya secara proporsional */
     width: 100%;
     height: 100%;
-    
-    /* Properti lainnya tetap sama */
-    border: 2px dashed var(--secondary-color);
+    border: 2px dashed #ccc;
     border-radius: 8px;
     cursor: grab;
     touch-action: none;
@@ -71,15 +69,16 @@ main {
     cursor: grabbing;
 }
 
-#placeholder-text {
+/* Overlay untuk teks dan loading */
+.canvas-overlay {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: #aaa;
     font-size: 1.2rem;
-    pointer-events: none; /* Allows clicks to go through to the canvas */
-    z-index: -1;
+    pointer-events: none;
+    font-weight: 600;
 }
 
 .controls {
