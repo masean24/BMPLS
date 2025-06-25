@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Twibbon Interaktif</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Generator Twibbon</h1>
+            <p>Pasang fotomu pada template yang telah disediakan dengan mudah.</p>
+        </header>
+
+        <main>
+            <div class="canvas-wrapper">
+                <canvas id="twibbonCanvas" width="1080" height="1080"></canvas>
+                <div id="placeholder-text">Area Kreasimu</div>
+            </div>
+
+            <div class="controls">
+                <p class="instruction">Langkah 1: Pilih Fotomu</p>
+                <label for="imageLoader" class="custom-file-upload">
+                    <img src="https://icongr.am/feather/upload.svg?size=24&color=ffffff" alt="upload icon">
+                    Pilih Foto
+                </label>
+                <input type="file" id="imageLoader" name="imageLoader" accept="image/*"/>
+
+                <p class="instruction">Langkah 2: Atur Posisi & Ukuran</p>
+                <div class="zoom-control">
+                    <label for="zoomSlider">Zoom:</label>
+                    <input type="range" id="zoomSlider" min="0.2" max="3" step="0.05" value="1" disabled>
+                </div>
+                <small>Gunakan mouse atau sentuhan jarimu di atas gambar untuk menggeser posisi.</small>
+
+                <p class="instruction">Langkah 3: Simpan Hasilnya</p>
+                <div class="action-buttons">
+                    <button id="downloadBtn" disabled>
+                        <img src="https://icongr.am/feather/download.svg?size=20&color=ffffff" alt="download icon">
+                        Download
+                    </button>
+                    <button id="resetBtn" disabled>
+                        <img src="https://icongr.am/feather/refresh-cw.svg?size=20&color=333" alt="reset icon">
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <a href="mailto:dukungan@websiteanda.com?subject=Laporan Masalah Generator Twibbon" class="report-problem">
+                <img src="https://icongr.am/feather/alert-circle.svg?size=16&color=currentColor" alt="report icon">
+                Lapor Masalah
+            </a>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

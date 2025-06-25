@@ -1,0 +1,216 @@
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-color: #f4f7f6;
+    --text-color: #333;
+    --card-bg: #ffffff;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: var(--card-bg);
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+}
+
+header h1 {
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+header p {
+    color: var(--secondary-color);
+    margin-top: 0;
+}
+
+main {
+    display: flex;
+    gap: 40px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.canvas-wrapper {
+    position: relative;
+    /* Kita atur ukuran wadahnya agar tidak terlalu besar di layar */
+    width: 500px;  /* Anda bisa ganti misal ke 600px jika mau lebih besar */
+    max-width: 100%; /* Agar responsif di layar kecil */
+    aspect-ratio: 1 / 1; /* Menjaga bentuk kotak */
+    flex-shrink: 0;
+}
+
+#twibbonCanvas {
+    /* Atur agar canvas mengisi penuh wadahnya secara proporsional */
+    width: 100%;
+    height: 100%;
+    
+    /* Properti lainnya tetap sama */
+    border: 2px dashed var(--secondary-color);
+    border-radius: 8px;
+    cursor: grab;
+    touch-action: none;
+}
+
+#twibbonCanvas:active {
+    cursor: grabbing;
+}
+
+#placeholder-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #aaa;
+    font-size: 1.2rem;
+    pointer-events: none; /* Allows clicks to go through to the canvas */
+    z-index: -1;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+
+.instruction {
+    font-weight: 600;
+    color: var(--primary-color);
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+.instruction:first-of-type {
+    margin-top: 0;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+}
+
+.custom-file-upload:hover {
+    background-color: #0056b3;
+}
+
+.zoom-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+input[type="range"] {
+    width: 100%;
+    cursor: pointer;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+button {
+    flex-grow: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+button#downloadBtn {
+    background-color: #28a745;
+    color: white;
+}
+
+button#downloadBtn:hover {
+    background-color: #218838;
+}
+
+button#resetBtn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+button#resetBtn:hover {
+    background-color: #e0e0e0;
+}
+
+button:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.report-problem {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.3s;
+}
+.report-problem:hover {
+    color: var(--primary-color);
+}
+
+
+/* Responsive Design */
+@media (max-width: 920px) {
+    main {
+        flex-direction: column;
+        align-items: center;
+    }
+    .controls {
+        max-width: 500px;
+    }
+}
