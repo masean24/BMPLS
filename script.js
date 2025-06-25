@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Membuat template sample (ganti dengan template asli)
+     * Membuat template sample dengan area transparan untuk foto user
      */
     function createSampleTemplate() {
         const tempCanvas = document.createElement('canvas');
@@ -125,37 +125,115 @@ document.addEventListener('DOMContentLoaded', () => {
         tempCanvas.height = 1080;
         const tempCtx = tempCanvas.getContext('2d');
 
-        // Background gradient
+        // Fill dengan background transparan
+        tempCtx.clearRect(0, 0, 1080, 1080);
+
+        // Border luar dengan gradient
         const gradient = tempCtx.createLinearGradient(0, 0, 1080, 1080);
-        gradient.addColorStop(0, 'rgba(0, 123, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(0, 123, 255, 0.05)');
-        tempCtx.fillStyle = gradient;
-        tempCtx.fillRect(0, 0, 1080, 1080);
-
-        // Frame border
-        tempCtx.strokeStyle = '#007bff';
-        tempCtx.lineWidth = 20;
-        tempCtx.strokeRect(50, 50, 980, 980);
-
-        // Corner decorations
-        tempCtx.fillStyle = '#007bff';
-        tempCtx.fillRect(0, 0, 150, 150);
-        tempCtx.fillRect(930, 0, 150, 150);
-        tempCtx.fillRect(0, 930, 150, 150);
-        tempCtx.fillRect(930, 930, 150, 150);
-
-        // Sample text overlay
-        tempCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        tempCtx.fillRect(200, 900, 680, 120);
+        gradient.addColorStop(0, '#007bff');
+        gradient.addColorStop(0.5, '#0056b3');
+        gradient.addColorStop(1, '#004085');
         
-        tempCtx.fillStyle = '#007bff';
-        tempCtx.font = 'bold 48px Arial';
+        // Border frame (hollow di tengah untuk foto user)
+        tempCtx.fillStyle = gradient;
+        tempCtx.fillRect(0, 0, 1080, 150); // Top border
+        tempCtx.fillRect(0, 930, 1080, 150); // Bottom border
+        tempCtx.fillRect(0, 150, 150, 780); // Left border
+        tempCtx.fillRect(930, 150, 150, 780); // Right border
+
+        // Corner decorations dengan pattern
+        const cornerSize = 150;
+        
+        // Top-left corner
+        tempCtx.fillStyle = '#FFD700';
+        tempCtx.beginPath();
+        tempCtx.arc(0, 0, cornerSize/2, 0, Math.PI/2);
+        tempCtx.fill();
+        
+        // Top-right corner
+        tempCtx.beginPath();
+        tempCtx.arc(1080, 0, cornerSize/2, Math.PI/2, Math.PI);
+        tempCtx.fill();
+        
+        // Bottom-left corner
+        tempCtx.beginPath();
+        tempCtx.arc(0, 1080, cornerSize/2, -Math.PI/2, 0);
+        tempCtx.fill();
+        
+        // Bottom-right corner
+        tempCtx.beginPath();
+        tempCtx.arc(1080, 1080, cornerSize/2, Math.PI, -Math.PI/2);
+        tempCtx.fill();
+
+        // Inner decorative borders
+        tempCtx.strokeStyle = '#FFD700';
+        tempCtx.lineWidth = 8;
+        tempCtx.setLineDash([20, 10]);
+        tempCtx.strokeRect(160, 160, 760, 760);
+        tempCtx.setLineDash([]);
+
+        // Text overlay di bagian bawah
+        tempCtx.fillStyle = 'rgba(0, 123, 255, 0.9)';
+        tempCtx.fillRect(150, 930, 780, 150);
+        
+        // Shadow untuk text
+        tempCtx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        tempCtx.shadowBlur = 4;
+        tempCtx.shadowOffsetX = 2;
+        tempCtx.shadowOffsetY = 2;
+        
+        tempCtx.fillStyle = '#FFFFFF';
+        tempCtx.font = 'bold 42px Arial';
         tempCtx.textAlign = 'center';
-        tempCtx.fillText('TWIBBON GENERATOR', 540, 950);
-        tempCtx.font = '32px Arial';
-        tempCtx.fillText('Created with ❤️', 540, 990);
+        tempCtx.fillText('🎨 TWIBBON GENERATOR', 540, 975);
+        tempCtx.font = '28px Arial';
+        tempCtx.fillText('Made with Love ❤️', 540, 1015);
+        
+        // Reset shadow
+        tempCtx.shadowColor = 'transparent';
+        tempCtx.shadowBlur = 0;
+        tempCtx.shadowOffsetX = 0;
+        tempCtx.shadowOffsetY = 0;
+
+        // Decorative stars
+        tempCtx.fillStyle = '#FFD700';
+        const stars = [
+            {x: 100, y: 75}, {x: 980, y: 75}, {x: 100, y: 1005}, {x: 980, y: 1005},
+            {x: 200, y: 50}, {x: 880, y: 50}, {x: 200, y: 1030}, {x: 880, y: 1030}
+        ];
+        
+        stars.forEach(star => {
+            drawStar(tempCtx, star.x, star.y, 5, 15, 8);
+        });
 
         return tempCanvas.toDataURL();
+    }
+
+    /**
+     * Menggambar bintang
+     */
+    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = Math.PI / 2 * 3;
+        let x = cx;
+        let y = cy;
+        const step = Math.PI / spikes;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+            x = cx + Math.cos(rot) * outerRadius;
+            y = cy + Math.sin(rot) * outerRadius;
+            ctx.lineTo(x, y);
+            rot += step;
+
+            x = cx + Math.cos(rot) * innerRadius;
+            y = cy + Math.sin(rot) * innerRadius;
+            ctx.lineTo(x, y);
+            rot += step;
+        }
+        ctx.lineTo(cx, cy - outerRadius);
+        ctx.closePath();
+        ctx.fill();
     }
 
     // === CORE FUNCTIONS ===
@@ -169,8 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Clear canvas dengan background putih
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Draw user image first (background layer)
         if (userImage) {
@@ -184,15 +263,29 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
+            // Clip gambar user ke area tengah (opsional, untuk foto yang pas di frame)
+            ctx.save();
+            
+            // Gambar foto user
             ctx.drawImage(userImage, position.x, position.y, scaledWidth, scaledHeight);
+            
+            ctx.restore();
         } else {
             placeholderText.style.display = 'block';
             canvas.classList.remove('has-image');
         }
 
-        // Draw template overlay (foreground layer)
+        // Draw template overlay (foreground layer) - ini yang penting!
         if (isTemplateLoaded) {
+            // Template ditaruh di atas foto user
             ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+        }
+
+        // Debug info - hapus baris ini setelah berhasil
+        if (userImage) {
+            console.log('🖼️ User image drawn at:', position, 'with scale:', scale);
+            console.log('📐 Image size:', userImage.width, 'x', userImage.height);
+            console.log('📏 Scaled size:', userImage.width * scale, 'x', userImage.height * scale);
         }
     }
 
@@ -358,10 +451,23 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (event) => {
                 userImage = new Image();
                 userImage.onload = () => {
+                    console.log('✅ Image loaded successfully:', {
+                        width: userImage.width,
+                        height: userImage.height,
+                        naturalWidth: userImage.naturalWidth,
+                        naturalHeight: userImage.naturalHeight
+                    });
+
                     // Auto-scale to fit canvas nicely
                     const scaleX = canvas.width / userImage.width;
                     const scaleY = canvas.height / userImage.height;
-                    scale = Math.max(scaleX, scaleY) * 0.8; // Slightly smaller than full fit
+                    scale = Math.min(scaleX, scaleY) * 1.2; // Lebih besar agar mengisi area
+                    
+                    // Batasi scale maksimal
+                    if (scale > 2.5) scale = 2.5;
+                    if (scale < 0.3) scale = 0.3;
+                    
+                    console.log('📏 Calculated scale:', scale);
                     
                     // Center the image
                     resetImagePosition();
@@ -369,7 +475,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     zoomSlider.value = scale;
                     updateZoomValue();
                     setControlsState(true);
-                    redrawCanvas();
+                    
+                    // Redraw dengan delay untuk memastikan semua ready
+                    setTimeout(() => {
+                        redrawCanvas();
+                        console.log('🎨 Canvas redrawn with user image');
+                    }, 100);
+                    
                     hideLoading();
                 };
 
