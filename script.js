@@ -1,3 +1,41 @@
+// Dark Mode Functionality - Tambahkan ini ke bagian atas script.js
+
+// === DARK MODE SETUP ===
+function initTheme() {
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    
+    // Set initial theme
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    // Theme toggle event
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+        
+        // Show theme change notification
+        showAlert('success', `Mode ${newTheme === 'dark' ? 'gelap' : 'terang'} diaktifkan! 🎨`);
+    });
+}
+
+function updateThemeIcon(theme) {
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    themeToggle.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+}
+
+// Call initTheme when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize theme first
+    initTheme();
+    
+    // ... rest of your existing code ...
+
 document.addEventListener('DOMContentLoaded', () => {
     // === DOM ELEMENTS ===
     const canvas = document.getElementById('twibbonCanvas');
