@@ -1,7 +1,8 @@
+/* Di bagian :root variables, ubah --background-color */
 :root {
     --primary-color: #007bff;
     --secondary-color: #6c757d;
-    --background-color: #f4f7f6;
+    --background-color: #4169e1; /* Ubah dari #f4f7f6 ke #4169e1 */
     --text-color: #333;
     --card-bg: #ffffff;
     --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -10,13 +11,12 @@
     --danger-color: #dc3545;
 }
 
-* {
-    box-sizing: border-box;
-}
-
+/* Di bagian body, ubah gradient background */
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, var(--background-color) 0%, #e8f4f8 100%);
+    background: #4169e1; /* Ubah dari gradient menjadi solid color */
+    /* ATAU jika ingin tetap gradient: */
+    /* background: linear-gradient(135deg, #4169e1 0%, #5a7df5 100%); */
     color: var(--text-color);
     margin: 0;
     padding: 20px;
