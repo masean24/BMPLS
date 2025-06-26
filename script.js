@@ -1,25 +1,22 @@
-// Dark Mode Functionality - Tambahkan ini ke bagian atas script.js
-
 // === DARK MODE SETUP ===
+let currentTheme = 'light'; // Menggunakan variabel JS biasa
+
 function initTheme() {
     const themeToggle = document.getElementById('themeToggle');
-    const savedTheme = localStorage.getItem('theme') || 'light';
     
     // Set initial theme
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeIcon(currentTheme);
     
     // Theme toggle event
     themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
         
         // Show theme change notification
-        showAlert('success', `Mode ${newTheme === 'dark' ? 'gelap' : 'terang'} diaktifkan! 🎨`);
+        showAlert('success', `Mode ${currentTheme === 'dark' ? 'gelap' : 'terang'} diaktifkan! 🎨`);
     });
 }
 
@@ -29,12 +26,12 @@ function updateThemeIcon(theme) {
     themeToggle.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
 }
 
-// Call initTheme when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize theme first
     initTheme();
     
-    // ... rest of your existing code ...
+    // === DOM ELEMENTS ===
+    const canvas = document.getElementById('twibbonCanvas');
 
 document.addEventListener('DOMContentLoaded', () => {
     // === DOM ELEMENTS ===
