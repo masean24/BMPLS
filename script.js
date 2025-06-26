@@ -31,10 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let isImageProcessing = false;
 
     // === TEMPLATE CONFIGURATION ===
+    // ✅ Fixed: Gunakan nama variabel yang konsisten
     const templateUrl = 'https://raw.githubusercontent.com/masean24/tes-aja/main/template.png';
 
     // === UTILITY FUNCTIONS ===
     
+    /**
+     * Menampilkan alert dengan tipe dan pesan tertentu
+     */
     function showAlert(type, message) {
         hideAllAlerts();
         const alert = type === 'success' ? successAlert : 
@@ -45,27 +49,40 @@ document.addEventListener('DOMContentLoaded', () => {
         messageEl.textContent = message;
         alert.style.display = 'flex';
         
+        // Auto hide after 5 seconds
         setTimeout(() => {
             alert.style.display = 'none';
         }, 5000);
     }
 
+    /**
+     * Menyembunyikan semua alert
+     */
     function hideAllAlerts() {
         successAlert.style.display = 'none';
         errorAlert.style.display = 'none';
         warningAlert.style.display = 'none';
     }
 
+    /**
+     * Menampilkan loading overlay
+     */
     function showLoading() {
         loadingOverlay.style.display = 'flex';
         isImageProcessing = true;
     }
 
+    /**
+     * Menyembunyikan loading overlay
+     */
     function hideLoading() {
         loadingOverlay.style.display = 'none';
         isImageProcessing = false;
     }
 
+    /**
+     * Format ukuran file ke string yang readable
+     */
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -74,11 +91,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
+    /**
+     * Update display zoom percentage
+     */
     function updateZoomValue() {
         const percentage = Math.round(scale * 100);
         zoomValue.textContent = percentage + '%';
     }
 
+    /**
+     * Validasi file yang diupload
+     */
     function validateFile(file) {
         const maxSize = 10 * 1024 * 1024; // 10MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -94,39 +117,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    /**
+     * Membuat template sample dengan area transparan untuk foto user
+     */
     function createSampleTemplate() {
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = 1080;
         tempCanvas.height = 1080;
         const tempCtx = tempCanvas.getContext('2d');
 
-        // Background transparan untuk area foto
+        // Fill dengan background transparan
         tempCtx.clearRect(0, 0, 1080, 1080);
 
-        // Border frame dengan area tengah transparan untuk foto user
+        // Border luar dengan gradient
         const gradient = tempCtx.createLinearGradient(0, 0, 1080, 1080);
         gradient.addColorStop(0, '#007bff');
         gradient.addColorStop(0.5, '#0056b3');
         gradient.addColorStop(1, '#004085');
         
-        // Top border
+        // Border frame (hollow di tengah untuk foto user)
         tempCtx.fillStyle = gradient;
-        tempCtx.fillRect(0, 0, 1080, 150);
-        
-        // Bottom border
-        tempCtx.fillRect(0, 930, 1080, 150);
-        
-        // Left border
-        tempCtx.fillRect(0, 150, 150, 780);
-        
-        // Right border
-        tempCtx.fillRect(930, 150, 150, 780);
+        tempCtx.fillRect(0, 0, 1080, 150); // Top border
+        tempCtx.fillRect(0, 930, 1080, 150); // Bottom border
+        tempCtx.fillRect(0, 150, 150, 780); // Left border
+        tempCtx.fillRect(930, 150, 150, 780); // Right border
 
-        // Corner decorations
+        // Corner decorations dengan pattern
         const cornerSize = 150;
-        tempCtx.fillStyle = '#FFD700';
         
         // Top-left corner
+        tempCtx.fillStyle = '#FFD700';
         tempCtx.beginPath();
         tempCtx.arc(0, 0, cornerSize/2, 0, Math.PI/2);
         tempCtx.fill();
@@ -146,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tempCtx.arc(1080, 1080, cornerSize/2, Math.PI, -Math.PI/2);
         tempCtx.fill();
 
-        // Inner decorative border
+        // Inner decorative borders
         tempCtx.strokeStyle = '#FFD700';
         tempCtx.lineWidth = 8;
         tempCtx.setLineDash([20, 10]);
@@ -157,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tempCtx.fillStyle = 'rgba(0, 123, 255, 0.9)';
         tempCtx.fillRect(150, 930, 780, 150);
         
+        // Shadow untuk text
         tempCtx.shadowColor = 'rgba(0, 0, 0, 0.3)';
         tempCtx.shadowBlur = 4;
         tempCtx.shadowOffsetX = 2;
@@ -169,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tempCtx.font = '28px Arial';
         tempCtx.fillText('Made with Love ❤️', 540, 1015);
         
+        // Reset shadow
         tempCtx.shadowColor = 'transparent';
         tempCtx.shadowBlur = 0;
         tempCtx.shadowOffsetX = 0;
@@ -188,6 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return tempCanvas.toDataURL();
     }
 
+    /**
+     * Menggambar bintang
+     */
     function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
         let rot = Math.PI / 2 * 3;
         let x = cx;
@@ -215,8 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === CORE FUNCTIONS ===
 
     /**
-     * FUNGSI UTAMA: Menggambar ulang canvas
-     * PERBAIKAN: Urutan drawing yang benar dan debugging
+     * Menggambar ulang canvas dengan user image dan template
      */
     function redrawCanvas() {
         if (!ctx) {
@@ -224,17 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        console.log('🎨 Redrawing canvas...');
-        console.log('   - User image:', !!userImage);
-        console.log('   - Template loaded:', isTemplateLoaded);
-        console.log('   - Position:', position);
-        console.log('   - Scale:', scale);
-
-        // 1. Clear canvas dengan background putih
+        // Clear canvas dengan background putih
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 2. Draw user image FIRST (sebagai background)
+        // Draw user image first (background layer)
         if (userImage) {
             placeholderText.style.display = 'none';
             canvas.classList.add('has-image');
@@ -242,35 +260,39 @@ document.addEventListener('DOMContentLoaded', () => {
             const scaledWidth = userImage.width * scale;
             const scaledHeight = userImage.height * scale;
 
-            // Enable high-quality rendering
+            // Enable high-quality image smoothing
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            console.log('   - Drawing user image:', {
-                x: position.x,
-                y: position.y,
-                width: scaledWidth,
-                height: scaledHeight
-            });
-
-            // Draw user photo
+            // Clip gambar user ke area tengah (opsional, untuk foto yang pas di frame)
+            ctx.save();
+            
+            // Gambar foto user
             ctx.drawImage(userImage, position.x, position.y, scaledWidth, scaledHeight);
+            
+            ctx.restore();
         } else {
             placeholderText.style.display = 'block';
             canvas.classList.remove('has-image');
         }
 
-        // 3. Draw template OVER the user image
-        if (isTemplateLoaded && templateImage.complete) {
-            console.log('   - Drawing template overlay');
+        // Draw template overlay (foreground layer) - ini yang penting!
+        if (isTemplateLoaded) {
+            // Template ditaruh di atas foto user
             ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
-        } else {
-            console.log('   - Template not ready for drawing');
         }
 
-        console.log('✅ Canvas redraw complete');
+        // Debug info - hapus baris ini setelah berhasil
+        if (userImage) {
+            console.log('🖼️ User image drawn at:', position, 'with scale:', scale);
+            console.log('📐 Image size:', userImage.width, 'x', userImage.height);
+            console.log('📏 Scaled size:', userImage.width * scale, 'x', userImage.height * scale);
+        }
     }
 
+    /**
+     * Mengatur status kontrol (enabled/disabled)
+     */
     function setControlsState(enabled) {
         zoomSlider.disabled = !enabled;
         downloadBtn.disabled = !enabled;
@@ -284,6 +306,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Mendapatkan posisi event (mouse/touch) relatif terhadap canvas
+     */
     function getEventPosition(event) {
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
@@ -301,6 +326,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    /**
+     * Reset posisi gambar ke tengah
+     */
     function resetImagePosition() {
         if (!userImage) return;
 
@@ -313,6 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
         redrawCanvas();
     }
 
+    /**
+     * Download hasil sebagai PNG
+     */
     function downloadResult() {
         if (!userImage) {
             showAlert('warning', 'Silakan upload foto terlebih dahulu!');
@@ -322,25 +353,23 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             showLoading();
             
+            // Create final canvas with high quality
             const finalCanvas = document.createElement('canvas');
             finalCanvas.width = 1080;
             finalCanvas.height = 1080;
             const finalCtx = finalCanvas.getContext('2d');
             
+            // Enable high-quality rendering
             finalCtx.imageSmoothingEnabled = true;
             finalCtx.imageSmoothingQuality = 'high';
 
-            // White background
-            finalCtx.fillStyle = '#FFFFFF';
-            finalCtx.fillRect(0, 0, 1080, 1080);
-
-            // Draw user image first
+            // Draw user image
             const scaledWidth = userImage.width * scale;
             const scaledHeight = userImage.height * scale;
             finalCtx.drawImage(userImage, position.x, position.y, scaledWidth, scaledHeight);
 
             // Draw template overlay
-            if (isTemplateLoaded && templateImage.complete) {
+            if (isTemplateLoaded) {
                 finalCtx.drawImage(templateImage, 0, 0, 1080, 1080);
             }
 
@@ -360,6 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Reset semua state
+     */
     function resetAll() {
         if (!userImage) return;
 
@@ -380,44 +412,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // === EVENT LISTENERS ===
 
     /**
-     * PERBAIKAN: Template loading dengan error handling yang lebih baik
+     * Template Image Loading
      */
     templateImage.onload = () => {
-        console.log('✅ Template berhasil dimuat dari:', templateUrl);
         isTemplateLoaded = true;
-        
-        // Force redraw setelah template dimuat
-        setTimeout(() => {
-            redrawCanvas();
-            showAlert('success', '🎨 Generator siap digunakan! Upload foto untuk memulai.');
-        }, 100);
+        redrawCanvas();
+        showAlert('success', '🎨 Generator siap digunakan! Upload foto untuk memulai.');
+        console.log('✅ Template berhasil dimuat dari:', templateUrl);
     };
 
-    templateImage.onerror = (error) => {
-        console.warn('⚠️ Template dari GitHub gagal dimuat:', error);
+    templateImage.onerror = () => {
+        // ✅ Fallback: Jika template dari GitHub gagal, gunakan template sample
+        console.warn('⚠️ Template dari GitHub gagal dimuat, menggunakan template sample...');
         showAlert('warning', 'Template utama tidak tersedia, menggunakan template alternatif.');
         
-        // Fallback ke template sample
+        // Buat template sample sebagai fallback
         const sampleTemplate = new Image();
         sampleTemplate.onload = () => {
-            console.log('✅ Template sample berhasil dimuat');
             templateImage = sampleTemplate;
             isTemplateLoaded = true;
-            
-            setTimeout(() => {
-                redrawCanvas();
-            }, 100);
+            redrawCanvas();
+            console.log('✅ Template sample berhasil dimuat');
         };
         sampleTemplate.src = createSampleTemplate();
     };
 
-    // Load template dengan CORS handling
+    // ✅ Load template dengan error handling yang lebih baik
     console.log('🔄 Memuat template dari:', templateUrl);
-    templateImage.crossOrigin = 'anonymous';
+    templateImage.crossOrigin = 'anonymous'; // Untuk mengatasi CORS
     templateImage.src = templateUrl;
 
     /**
-     * PERBAIKAN: File upload handler yang lebih robust
+     * File Upload Handler
      */
     imageLoader.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -428,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showLoading();
             hideAllAlerts();
             
+            // Show file info
             fileInfo.innerHTML = `
                 <strong>📄 File:</strong> ${file.name}<br>
                 <strong>📏 Ukuran:</strong> ${formatFileSize(file.size)}
@@ -436,48 +463,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const reader = new FileReader();
             reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    console.log('✅ User image loaded:', {
-                        width: img.width,
-                        height: img.height,
-                        src: img.src.substring(0, 50) + '...'
+                userImage = new Image();
+                userImage.onload = () => {
+                    console.log('✅ Image loaded successfully:', {
+                        width: userImage.width,
+                        height: userImage.height,
+                        naturalWidth: userImage.naturalWidth,
+                        naturalHeight: userImage.naturalHeight
                     });
 
-                    // Set user image
-                    userImage = img;
-
-                    // Calculate optimal scale
-                    const maxSize = Math.min(canvas.width, canvas.height) * 0.8; // 80% of canvas
-                    const imgMaxSize = Math.max(img.width, img.height);
-                    scale = Math.min(maxSize / imgMaxSize, 2.5); // Max scale 2.5x
-                    scale = Math.max(scale, 0.3); // Min scale 0.3x
+                    // Auto-scale to fit canvas nicely
+                    const scaleX = canvas.width / userImage.width;
+                    const scaleY = canvas.height / userImage.height;
+                    scale = Math.min(scaleX, scaleY) * 1.2; // Lebih besar agar mengisi area
+                    
+                    // Batasi scale maksimal
+                    if (scale > 2.5) scale = 2.5;
+                    if (scale < 0.3) scale = 0.3;
                     
                     console.log('📏 Calculated scale:', scale);
                     
                     // Center the image
                     resetImagePosition();
 
-                    // Update controls
                     zoomSlider.value = scale;
                     updateZoomValue();
                     setControlsState(true);
                     
-                    hideLoading();
-                    
-                    // Force redraw after everything is set
+                    // Redraw dengan delay untuk memastikan semua ready
                     setTimeout(() => {
                         redrawCanvas();
+                        console.log('🎨 Canvas redrawn with user image');
                     }, 100);
+                    
+                    hideLoading();
                 };
 
-                img.onerror = (error) => {
-                    console.error('❌ Failed to load user image:', error);
+                userImage.onerror = () => {
                     hideLoading();
                     showAlert('error', 'Gagal memuat gambar. Pastikan file tidak rusak.');
                 };
 
-                img.src = event.target.result;
+                userImage.src = event.target.result;
             };
 
             reader.onerror = () => {
@@ -493,7 +520,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Zoom control
+    /**
+     * Zoom Control Handler
+     */
     zoomSlider.addEventListener('input', (e) => {
         if (!userImage) return;
 
@@ -501,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scale = parseFloat(e.target.value);
         updateZoomValue();
 
-        // Zoom towards center
+        // Zoom towards center point
         const oldWidth = userImage.width * oldScale;
         const newWidth = userImage.width * scale;
         position.x -= (newWidth - oldWidth) / 2;
@@ -513,8 +542,11 @@ document.addEventListener('DOMContentLoaded', () => {
         redrawCanvas();
     });
 
-    // === DRAG FUNCTIONALITY ===
+    // === DRAG & DROP FUNCTIONALITY ===
 
+    /**
+     * Mouse Events
+     */
     canvas.addEventListener('mousedown', (e) => {
         if (!userImage || isImageProcessing) return;
         isDragging = true;
@@ -552,7 +584,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Touch events
+    /**
+     * Touch Events for Mobile
+     */
     canvas.addEventListener('touchstart', (e) => {
         if (!userImage || isImageProcessing) return;
         isDragging = true;
@@ -580,7 +614,9 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = false;
     });
 
-    // Double-click to reset position
+    /**
+     * Double-click to reset position
+     */
     canvas.addEventListener('dblclick', () => {
         if (userImage) {
             resetImagePosition();
@@ -588,11 +624,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Button events
+    // === BUTTON EVENT LISTENERS ===
+
     downloadBtn.addEventListener('click', downloadResult);
     resetBtn.addEventListener('click', resetAll);
 
-    // Keyboard shortcuts
+    // === KEYBOARD SHORTCUTS ===
+
     document.addEventListener('keydown', (e) => {
         if (!userImage || isImageProcessing) return;
 
@@ -657,7 +695,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Responsive handling
+    // === RESPONSIVE HANDLING ===
+
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
@@ -668,7 +707,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     });
 
-    // Drag and drop
+    // === DRAG AND DROP FILE UPLOAD ===
+
     canvas.addEventListener('dragover', (e) => {
         e.preventDefault();
         canvas.style.borderColor = '#007bff';
@@ -689,6 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             const file = files[0];
+            // Simulate file input change
             const dt = new DataTransfer();
             dt.items.add(file);
             imageLoader.files = dt.files;
@@ -696,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial welcome
+    // === INITIAL WELCOME MESSAGE ===
     setTimeout(() => {
         if (!userImage) {
             showAlert('success', '👋 Selamat datang! Upload foto untuk membuat twibbon keren.');
@@ -704,5 +745,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1000);
 
     console.log('🎨 Twibbon Generator berhasil dimuat!');
-    console.log('⌨️ Keyboard shortcuts tersedia');
+    console.log('⌨️ Keyboard shortcuts:');
+    console.log('   • Arrow keys: Geser gambar');
+    console.log('   • +/- : Zoom in/out');
+    console.log('   • Ctrl+R: Reset posisi');
+    console.log('   • Ctrl+D: Download');
+    console.log('   • Double-click: Reset posisi ke tengah');
 });
