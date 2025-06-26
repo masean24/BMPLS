@@ -1,38 +1,3 @@
-// === DARK MODE SETUP ===
-let currentTheme = 'light'; // Menggunakan variabel JS biasa
-
-function initTheme() {
-    const themeToggle = document.getElementById('themeToggle');
-    
-    // Set initial theme
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    updateThemeIcon(currentTheme);
-    
-    // Theme toggle event
-    themeToggle.addEventListener('click', () => {
-        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        updateThemeIcon(currentTheme);
-        
-        // Show theme change notification
-        showAlert('success', `Mode ${currentTheme === 'dark' ? 'gelap' : 'terang'} diaktifkan! 🎨`);
-    });
-}
-
-function updateThemeIcon(theme) {
-    const themeToggle = document.getElementById('themeToggle');
-    themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-    themeToggle.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize theme first
-    initTheme();
-    
-    // === DOM ELEMENTS ===
-    const canvas = document.getElementById('twibbonCanvas');
-
 document.addEventListener('DOMContentLoaded', () => {
     // === DOM ELEMENTS ===
     const canvas = document.getElementById('twibbonCanvas');
