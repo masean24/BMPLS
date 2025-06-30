@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walimatul Khitan - Danish Maleeq Jibrani</title>
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&family=Amiri:wght@400;700&family=Lateef&family=Great+Vibes&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="cover-page">
+            <div class="cover-content">
+                <div class="cover-image-frame">
+                    <img src="photo.png" alt="Danish Maleeq Jibrani"> 
+                </div>
+                
+                <div class="cover-subtitle">Walimatul Khitan dari</div>
+                <div class="cover-name">Danish Maleeq Jibrani</div>
+                <div class="cover-subtitle">Putra dari</div>
+                <div class="cover-subtitle">Bapak Sarmadi & Ibu Bedah</div>
+
+                <div class="cover-greeting">
+                    Kepada Yth: <br>
+                    <span id="coverRecipientName" class="recipient-name">Bapak/Ibu/Saudara/i</span>
+                    <br>Di Tempat
+                </div>
+
+                <a href="javascript:void(0)" class="smaller-open-button" onclick="openInvitation()">
+                    <span style="font-size: 20px;">💌</span> Buka Undangan
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="floral-decoration floral-1"></div>
+            <div class="floral-decoration floral-2"></div>
+            <div class="floral-decoration floral-3"></div>
+            <div class="floral-decoration floral-4"></div>
+
+            <button class="music-control" onclick="toggleMusic()" id="musicBtn">🎵</button>
+            <audio id="backgroundMusic" loop>
+                <source src="audio/musik.mp3" type="audio/mpeg"> 
+                Browser Anda tidak mendukung elemen audio.
+            </audio>
+
+            <div id="home" class="section active">
+                <div class="header">
+                    <div class="bismillah">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+                    <div class="invitation-text">
+                        Kepada Yth: <br>
+                        <strong id="recipientName" style="color: #7a5e43; font-size: 20px;">Bapak/Ibu/Saudara/i</strong>
+                        <br><br>
+                        Dengan memohon rahmat dan ridho Allah Subhanahu Wa Ta'ala, 
+                        kami bermaksud mengundang Anda dalam acara syukuran 
+                        Walimatul Khitan putra kami yang tercinta:
+                    </div>
+                    
+                    <div class="child-photo-main">
+                        <img src="photo.png" alt="Danish Maleeq Jibrani"> 
+                    </div>
+                    
+                    <div class="child-name">Danish Maleeq Jibrani</div>
+                    <div class="parents-info">Putra dari</div>
+                    <div class="parents-info"><strong>Bapak Sarmadi & Ibu Bedah</strong></div>
+                </div>
+
+                <div class="combined-event-section">
+                    <div class="section-title" style="margin-bottom: 20px;">Walimatul Khitan</div>
+                    
+                    <div class="section-intro-text">
+                        Walimatul Khitan kami akan diselenggarakan pada:
+                    </div>
+
+                    <div id="countdown" class="countdown-timer-combined">
+                        <div class="countdown-item-small"><span id="days">00</span><span>Hari</span></div>
+                        <div class="countdown-item-small"><span id="hours">00</span><span>Jam</span></div>
+                        <div class="countdown-item-small"><span id="minutes">00</span><span>Menit</span></div>
+                        <div class="countdown-item-small"><span id="seconds">00</span><span>Detik</span></div>
+                    </div>
+
+                    <div class="event-date-display">
+                        Sabtu, 12 Juli 2025
+                    </div>
+
+                    <div class="event-time-location">
+                        <p><span class="label-bold">Pukul:</span> 10.00 WIB - Selesai</p>
+                        <p><span class="label-bold">Bertempat di:</span></p>
+                        <span class="location-name">Kediaman Bapak Sarmadi</span>
+                        <span class="address-text">Jl. Japos Raya Pondok Jati Utara, RT. 05 RW. 03, Gg Liyas Kel. Jurangmangu Barat, Kec Pondok Aren, Kota Tangerang Selatan</span>
+                    </div>
+
+                    <a href="javascript:void(0)" class="save-to-calendar-button" onclick="saveEventToCalendar()">
+                        <span style="font-size: 20px;">🗓️</span> Klik Simpan di Kalender
+                    </a>
+                </div>
+            </div>
+
+            <div id="event" class="section">
+                <div class="event-details" style="background: rgba(255, 255, 255, 0.95);">
+                    <h2 style="text-align: center; color: #7a5e43; margin-bottom: 35px; font-family: 'Scheherazade New', serif;">Detail Acara</h2>
+                    
+                    <div style="margin-bottom: 35px; background: #fefdfb; padding: 25px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px dashed #e8dcc0;">
+                        <h3 style="color: #c9a876; margin-bottom: 18px; font-family: 'Amiri', serif;">🍽️ Syukuran & Makan Bersama</h3>
+                        <p style="margin-bottom: 8px;"><strong>Waktu::</strong> 10.00 WIB - Selesai</p>
+                        <p style="margin-bottom: 8px;"><strong>Tempat:</strong> Kediaman Bapak Sarmadi</p>
+                        <p>Jl. Japos Raya Pondok Jati Utara, RT. 05 RW. 03, Gg Liyas Kel. Jurangmangu Barat, Kec Pondok Aren, Kota Tangerang Selatan</p>
+                    </div>
+
+                    <div style="background: #eef1f4; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid #d4e0e8; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);">
+                        <p style="color: #7a5e43; font-style: italic; font-size: 17px;">
+                            "Dan barangsiapa yang mengundang kepada petunjuk, 
+                            maka baginya pahala seperti pahala orang-orang yang mengikutinya"
+                        </p>
+                        <p style="color: #6b5b47; margin-top: 12px; font-size: 14px;"><small>- HR. Muslim</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="location" class="section">
+                <div class="map-section">
+                    <div class="map-header">
+                        <h2>📍 Lokasi Acara</h2>
+                        <p>Kediaman Bapak Sarmadi</p>
+                        <p>Jl. Japos Raya Pondok Jati Utara, RT. 05 RW. 03, Gg Liyas Kel. Jurangmangu Barat, Kec Pondok Aren, Kota Tangerang Selatan</p>
+                    </div>
+                    <iframe 
+                        id="map"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d247.87972272962597!2d106.71893475343876!3d-6.253969296502465!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69fbbe4394aadb%3A0xe59af6228d3302c1!2sBubur%20Ayam%20Tongcai%20Bang%20Rafiq!5e0!3m2!1sen!2sid!4v1751262392860!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+    
+                    <div class="event-details" style="text-align: center;">
+                    <a href="https://maps.app.goo.gl/whNYmTmyN2XFZhML9" target="_blank" 
+                    style="display: inline-block; background: #c9a876; color: white; padding: 14px 30px; 
+                          border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 17px;
+                          transition: all 0.3s ease;"
+                    onmouseover="this.style.background='#8b7355'"
+                    onmouseout="this.style.background='#c9a876'">
+                        🗺️ Buka di Google Maps
+                    </a>
+                </div>
+            </div>
+
+            <div id="ucapan" class="section">
+                <div class="rsvp-section">
+                    <h2 style="text-align: center; color: #7a5e43; margin-bottom: 25px; font-family: 'Scheherazade New', serif;">
+                        <span class="rsvp-header-icon">💝</span> Berikan Ucapan & Doa
+                    </h2>
+                    <p style="text-align: center; color: #6b5b47; margin-bottom: 35px; font-size: 16px;">
+                        Berikan ucapan dan doa terbaik Anda untuk ananda Danish Maleeq Jibrani agar senantiasa menjadi anak yang sholeh dan bermanfaat. Aamiin.
+                    </p>
+
+                    <form class="rsvp-form" onsubmit="submitUcapan(event)">
+                        <div class="form-group">
+                            <label for="senderName">Nama Anda</label>
+                            <input type="text" id="senderName" name="senderName" required placeholder="Contoh: Budi Santoso">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ucapanMessage">Ucapan & Doa</label>
+                            <textarea id="ucapanMessage" name="ucapanMessage" rows="5" required
+                                    placeholder="Tuliskan ucapan dan doa tulus Anda di sini..."></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn">💌 Kirim Ucapan & Doa</button>
+                    </form>
+
+                    <div id="ucapanResult" style="margin-top: 25px; padding: 18px; border-radius: 12px; display: none; text-align: center;"></div>
+
+                    <div class="ucapan-list" style="margin-top: 45px;">
+                        <h3 style="text-align: center; color: #7a5e43; margin-bottom: 30px; font-family: 'Scheherazade New', serif;">📜 Ucapan & Doa dari Tamu Tercinta</h3>
+                        <div id="ucapanContainer">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-container">
+                    <a href="#home" class="nav-item active" onclick="showSection('home', this)">
+                        <div class="nav-icon">🏠</div>
+                        <div>Home</div>
+                    </a>
+                    <a href="#event" class="nav-item" onclick="showSection('event', this)">
+                        <div class="nav-icon">📅</div>
+                        <div>Acara</div>
+                    </a>
+                    <a href="#location" class="nav-item" onclick="showSection('location', this)">
+                        <div class="nav-icon">📍</div>
+                        <div>Lokasi</div>
+                    </a>
+                    <a href="#ucapan" class="nav-item" onclick="showSection('ucapan', this)">
+                        <div class="nav-icon">💝</div>
+                        <div>Ucapan</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
