@@ -30,9 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let startDrag = { x: 0, y: 0 };
     let isTemplateLoaded = false;
     let isImageProcessing = false;
+    let currentTemplate = 'panitia'; // Track current template
 
     // === TEMPLATE CONFIGURATION ===
-    // ✅ Fixed: Gunakan nama variabel yang konsisten
     const templates = {
         panitia: 'https://raw.githubusercontent.com/masean24/tes-aja/main/template.png',
         peserta: 'https://raw.githubusercontent.com/masean24/tes-aja/main/template-peserta.png'
@@ -281,16 +281,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Draw template overlay (foreground layer) - ini yang penting!
-        if (isTemplateLoaded) {
+        if (isTemplateLoaded && templateImage) {
             // Template ditaruh di atas foto user
             ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
         }
 
-        // Debug info - hapus baris ini setelah berhasil
+        // Debug info
         if (userImage) {
             console.log('🖼️ User image drawn at:', position, 'with scale:', scale);
-            console.log('📐 Image size:', userImage.width, 'x', userImage.height);
-            console.log('📏 Scaled size:', userImage.width * scale, 'x', userImage.height * scale);
         }
     }
 
@@ -373,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
             finalCtx.drawImage(userImage, position.x, position.y, scaledWidth, scaledHeight);
 
             // Draw template overlay
-            if (isTemplateLoaded) {
+            if (isTemplateLoaded && templateImage) {
                 finalCtx.drawImage(templateImage, 0, 0, 1080, 1080);
             }
 
@@ -413,13 +411,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // === EVENT LISTENERS ===
-
     /**
-     * Template Image Loading
-     */
-    /**
- * Load template berdasarkan pilihan
+     * Load template berdasarkan pilihan
      */
     function loadTemplate(templateType) {
         currentTemplate = templateType;
@@ -452,7 +445,9 @@ document.addEventListener('DOMContentLoaded', () => {
         templateImage.src = templateUrl;
     }
 
-        /**
+    // === EVENT LISTENERS ===
+
+    /**
      * Template Selection Handler
      */
     templateRadios.forEach(radio => {
@@ -460,15 +455,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.checked) {
                 const selectedTemplate = e.target.value;
                 loadTemplate(selectedTemplate);
-                showAlert('success', `Template ${selectedTemplate} dipilih!`);
             }
         });
     });
-
-    // ✅ Load template dengan error handling yang lebih baik
-    console.log('🔄 Memuat template dari:', templateUrl);
-    templateImage.crossOrigin = 'anonymous'; // Untuk mengatasi CORS
-    templateImage.src = templateUrl;
 
     /**
      * File Upload Handler
@@ -495,21 +484,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 userImage.onload = () => {
                     console.log('✅ Image loaded successfully:', {
                         width: userImage.width,
-                        height: userImage.height,
-                        naturalWidth: userImage.naturalWidth,
-                        naturalHeight: userImage.naturalHeight
+                        height: userImage.height
                     });
 
                     // Auto-scale to fit canvas nicely
                     const scaleX = canvas.width / userImage.width;
                     const scaleY = canvas.height / userImage.height;
-                    scale = Math.min(scaleX, scaleY) * 1.2; // Lebih besar agar mengisi area
+                    scale = Math.min(scaleX, scaleY) * 1.2;
                     
-                    // Batasi scale maksimal
+                    // Batasi scale
                     if (scale > 2.5) scale = 2.5;
                     if (scale < 0.3) scale = 0.3;
-                    
-                    console.log('📏 Calculated scale:', scale);
                     
                     // Center the image
                     resetImagePosition();
@@ -518,12 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateZoomValue();
                     setControlsState(true);
                     
-                    // Redraw dengan delay untuk memastikan semua ready
-                    setTimeout(() => {
-                        redrawCanvas();
-                        console.log('🎨 Canvas redrawn with user image');
-                    }, 100);
-                    
+                    redrawCanvas();
                     hideLoading();
                 };
 
@@ -765,7 +745,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // === INITIAL WELCOME MESSAGE ===
+    // === INITIALIZATION ===
+
+    // Load default template
+    loadTemplate(currentTemplate);
+
+    // Initial welcome message
     setTimeout(() => {
         if (!userImage) {
             showAlert('success', '👋 Selamat datang! Upload foto untuk membuat twibbon keren.');
@@ -773,10 +758,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1000);
 
     console.log('🎨 Twibbon Generator berhasil dimuat!');
-    console.log('⌨️ Keyboard shortcuts:');
-    console.log('   • Arrow keys: Geser gambar');
-    console.log('   • +/- : Zoom in/out');
-    console.log('   • Ctrl+R: Reset posisi');
-    console.log('   • Ctrl+D: Download');
-    console.log('   • Double-click: Reset posisi ke tengah');
 });
