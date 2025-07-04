@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInfo = document.getElementById('fileInfo');
     const dragHint = document.getElementById('dragHint');
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const templateRadios = document.querySelectorAll('input[name="templateType"]');
 
     // Alert elements
     const successAlert = document.getElementById('successAlert');
@@ -32,7 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === TEMPLATE CONFIGURATION ===
     // ✅ Fixed: Gunakan nama variabel yang konsisten
-    const templateUrl = 'https://raw.githubusercontent.com/masean24/tes-aja/main/template.png';
+    const templates = {
+        panitia: 'https://raw.githubusercontent.com/masean24/tes-aja/main/template.png',
+        peserta: 'https://raw.githubusercontent.com/masean24/tes-aja/main/template-peserta.png'
+    };
 
     // === UTILITY FUNCTIONS ===
     
@@ -414,28 +418,52 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Template Image Loading
      */
-    templateImage.onload = () => {
-        isTemplateLoaded = true;
-        redrawCanvas();
-        showAlert('success', '🎨 Generator siap digunakan! Upload foto untuk memulai.');
-        console.log('✅ Template berhasil dimuat dari:', templateUrl);
-    };
-
-    templateImage.onerror = () => {
-        // ✅ Fallback: Jika template dari GitHub gagal, gunakan template sample
-        console.warn('⚠️ Template dari GitHub gagal dimuat, menggunakan template sample...');
-        showAlert('warning', 'Template utama tidak tersedia, menggunakan template alternatif.');
+    /**
+ * Load template berdasarkan pilihan
+     */
+    function loadTemplate(templateType) {
+        currentTemplate = templateType;
+        const templateUrl = templates[templateType];
         
-        // Buat template sample sebagai fallback
-        const sampleTemplate = new Image();
-        sampleTemplate.onload = () => {
-            templateImage = sampleTemplate;
+        console.log('🔄 Memuat template:', templateType, 'dari:', templateUrl);
+        
+        templateImage.onload = () => {
             isTemplateLoaded = true;
             redrawCanvas();
-            console.log('✅ Template sample berhasil dimuat');
+            showAlert('success', `🎨 Template ${templateType} berhasil dimuat!`);
+            console.log('✅ Template berhasil dimuat:', templateType);
         };
-        sampleTemplate.src = createSampleTemplate();
-    };
+    
+        templateImage.onerror = () => {
+            console.warn('⚠️ Template dari GitHub gagal dimuat, menggunakan template sample...');
+            showAlert('warning', 'Template utama tidak tersedia, menggunakan template alternatif.');
+            
+            const sampleTemplate = new Image();
+            sampleTemplate.onload = () => {
+                templateImage = sampleTemplate;
+                isTemplateLoaded = true;
+                redrawCanvas();
+                console.log('✅ Template sample berhasil dimuat');
+            };
+            sampleTemplate.src = createSampleTemplate();
+        };
+    
+        templateImage.crossOrigin = 'anonymous';
+        templateImage.src = templateUrl;
+    }
+
+        /**
+     * Template Selection Handler
+     */
+    templateRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                const selectedTemplate = e.target.value;
+                loadTemplate(selectedTemplate);
+                showAlert('success', `Template ${selectedTemplate} dipilih!`);
+            }
+        });
+    });
 
     // ✅ Load template dengan error handling yang lebih baik
     console.log('🔄 Memuat template dari:', templateUrl);
